@@ -8,6 +8,23 @@ import utils as ut
 
 @njit(fastmath=True)
 def step(parameters, m, M_R, tilde_nu, sq_mat):
+    """Compute an update proposal for the kernels delta_nu, hat_nu, mu, M_C, M_R
+
+    Args:
+        parameters (dict): parameters dictionary
+        m (np.ndarray): [T] vector, magnetisation
+        M_R (np.ndarray): [T, T] matrix, memory kernel
+        tilde_nu (np.ndarray): [T] vector, effective regularisation
+        sq_mat (np.ndarray): [T, T] matrix, square root of covariance of the noise
+
+    Returns:
+        np.ndarray: [T] vector, effective correction to the regularisation delta_nu
+        np.ndarray: [T] vector, explicit regularisation hat_nu
+        np.ndarray: [T] vector, magnetisation drift mu
+        np.ndarray: [T, T] matrix, covariance of the noise
+        np.ndarray: [T, T] matrix, memory kernel
+    """
+
     # Make batch selection variable
     batch = lf.make_batch(parameters)
 
@@ -23,6 +40,13 @@ def step(parameters, m, M_R, tilde_nu, sq_mat):
 
 
 def init(parameters, init_samples=256):
+    """ "Makes the starting ansatz and writes it to file.
+
+    Args:
+        parameters (_type_): parameters dictionary
+        init_samples (int, optional): Samples to compute the starting ansatz. Defaults to 256.
+    """
+
     m_0 = parameters["m_0"]
     T = int(parameters["T"])
     alpha = parameters["alpha"]
@@ -55,6 +79,14 @@ def init(parameters, init_samples=256):
 
 
 def iterate(comm, iteration, parameters):
+    """Loads the previous iteration from file, computes an update and writes the result to file
+
+    Args:
+        comm : communication util
+        iteration (int): iteration in the DMFT fixed point scheme.
+        parameters (dict): parameters dictionary
+    """
+
     T = int(parameters["T"])
     damping = parameters["damping"]
 

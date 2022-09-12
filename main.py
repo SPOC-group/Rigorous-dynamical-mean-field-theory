@@ -8,12 +8,10 @@ if __name__ == "__main__":
     size = comm.Get_size()
     ut.set_seed(comm)
 
-    # parameters = {"m_0": 0.2, "alpha": 3, "b": 0.5, "lambd": 0.5, "dt": 0.1, "T": 50, "n_samples": 2000, "damping": 0.7, "n_iterations": 30}
-
     parameters = ut.init_parameters()
     parameters["m_0"] = 0.2
     parameters["alpha"] = 3
-    parameters["b"] = 0.5
+    parameters["b"] = 1.0
     parameters["lambd"] = 0.5
     parameters["dt"] = 0.1
     parameters["T"] = 50

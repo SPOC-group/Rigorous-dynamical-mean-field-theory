@@ -9,6 +9,21 @@ warnings.filterwarnings("ignore")
 
 @njit(fastmath=True)
 def make_h(tilde_nu, m, batch, M_R, sq_mat, parameters):
+    """Makes n_samples stochastic processes for the preactivation h up to time step T
+
+    Args:
+        tilde_nu (np.ndarray): [T] vector, effective regularisation
+        m (np.ndarray): [T] vector, magnetisation
+        batch (np.ndarray): [T, n_samples] matrix, samples selection variable
+        M_R (np.ndarray): [T, T] matrix, memory kernel
+        sq_mat (np.ndarray): [T, T] matrix, square root of covariance of the noise
+        parameters (np.ndarray): parameter dictionary
+
+    Returns:
+        np.ndarray: [T, n_samples] matrix, stochastic processes for h
+        np.ndarray: [n_samples] vector, optimal preactivations h_0
+    """
+
     dt = parameters["dt"]
     T = int(parameters["T"])
     n_samples = int(parameters["n_samples"])
@@ -18,7 +33,7 @@ def make_h(tilde_nu, m, batch, M_R, sq_mat, parameters):
     h_start = np.random.normal(0, 1, n_samples)
     h_0 = np.random.normal(0, 1, n_samples)
 
-    noise = mt.make_noise(sq_mat, T, n_samples)
+    noise = mt.make_noise(sq_mat, parameters)
 
     h[0] = h_start
     for t in range(1, T):
@@ -35,11 +50,32 @@ def make_h(tilde_nu, m, batch, M_R, sq_mat, parameters):
 
 @njit(fastmath=True)
 def make_tilde_nu(hat_nu, delta_nu):
+    """Make the effective regularisation
+
+    Args:
+        hat_nu (np.ndarray): [T] vector, explicit regularisation
+        delta_nu (np.ndarray): [T] vector, effective correction to the regularisation
+
+    Returns:
+        np.ndarray: [T] vector, effective regularisation
+    """
+
     return hat_nu + delta_nu
 
 
 @njit(fastmath=True)
 def make_m(hat_nu, mu, parameters):
+    """Make the magnetisation
+
+    Args:
+        hat_nu (np.ndarray): [T] vector, explicit regularisation
+        mu (np.ndarray): [T] vector, magnetisation drift
+        parameters (dict): parameters dictionary
+
+    Returns:
+        np.ndarray: [T] vector, magnetisation
+    """
+
     m_0 = parameters["m_0"]
     T = int(parameters["T"])
     dt = parameters["dt"]
@@ -54,6 +90,18 @@ def make_m(hat_nu, mu, parameters):
 
 @njit(fastmath=True)
 def make_h_tilde(h, h_0, m, parameters):
+    """Compute "n_samples" samples of h_tilde, the preactivation shifted by the normalisation
+
+    Args:
+        h (np.ndarray): [T, n_samples] matrix, preactivation
+        h_0 (np.ndarray): [n_samples] vector, optimal preactivation
+        m (np.ndarray): [T] vector, magnetisation
+        parameters (dict): parameters dictionary
+
+    Returns:
+        np.ndarray: shifted preactivation
+    """
+
     n_samples = parameters["n_samples"]
 
     h_tilde = np.zeros_like(h)
@@ -64,6 +112,23 @@ def make_h_tilde(h, h_0, m, parameters):
 
 @njit(fastmath=True)
 def make_kernels(h_tilde, h_0, tilde_nu, batch, parameters):
+    """Make the kernels delta_nu, hat_nu, mu, M_C, M_R
+
+    Args:
+        h_tilde (np.ndarray): [T, n_samples] matrix, shifted preactivation
+        h_0 (np.ndarray): [n_samples] vector, optimal preactivation
+        tilde_nu (np.ndarray): [T] vector, effective regularisation
+        batch (np.ndarray): [T, n_samples] matrix, sample selection variable
+        parameters (dict): parameters dictionary
+
+    Returns:
+        np.ndarray: [T] vector, effective correction to the regularisation delta_nu
+        np.ndarray: [T] vector, explicit regularisation hat_nu
+        np.ndarray: [T] vector, magnetisation drift mu
+        np.ndarray: [T, T] matrix, covariance of the noise
+        np.ndarray: [T, T] matrix, memory kernel
+    """
+
     T = int(parameters["T"])
     dt = parameters["dt"]
     n_samples = int(parameters["n_samples"])

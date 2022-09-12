@@ -1,1 +1,6 @@
-data
+__pycache__/DMFT_equations.cpython-310.pyc
+__pycache__/DMFT_iteration.cpython-310.pyc
+__pycache__/loss_functions.cpython-310.pyc
+__pycache__/math_tools.cpython-310.pyc
+__pycache__/utils_plot.cpython-310.pyc
+__pycache__/utils.cpython-310.pyc
