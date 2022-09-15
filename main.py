@@ -20,7 +20,8 @@ if __name__ == "__main__":
     parameters["n_iterations"] = 30
 
     ut.printMPI(f"Initialising...", comm)
-    it.init(parameters)
+    if rank == 0:
+        it.init(parameters)
 
     n_iterations = int(parameters["n_iterations"])
     for iteration in range(n_iterations):

@@ -121,6 +121,12 @@ def iterate(comm, iteration, parameters):
         mu_comm = np.zeros((size, T))
         M_C_comm = np.zeros((size, T, T))
         M_R_comm = np.zeros((size, T, T))
+    else:
+        delta_nu_comm = np.empty((size, T))
+        hat_nu_comm = np.empty((size, T))
+        mu_comm = np.empty((size, T))
+        M_C_comm = np.empty((size, T, T))
+        M_R_comm = np.empty((size, T, T))
 
     # Send the new kernels
     comm.Gather(delta_nu_new, delta_nu_comm, root=0)
